@@ -122,10 +122,10 @@ header{
 /* ===== STATS ===== */
 .stats{border-bottom:1px solid var(--line); background:var(--bg-soft);}
 .stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line);}
-.stat{background:var(--bg-soft); padding:36px 28px; text-align:left; transition:background 0.3s;}
+.stat{background:var(--bg-soft); padding:40px 28px; text-align:center; display:flex; flex-direction:column; align-items:center; transition:background 0.3s;}
 .stat:hover{background:rgba(187,123,81,0.05);}
 .stat .num{font-family:var(--display); font-weight:800; font-size:36px; color:var(--copper-bright); line-height:1;}
-.stat .lbl{font-size:13.5px; color:var(--ink-dim); margin-top:8px;}
+.stat .lbl{font-size:13.5px; color:var(--ink-dim); margin-top:8px; max-width:260px;}
 @media(max-width:720px){ .stats-grid{grid-template-columns:1fr;} }
 
 /* ===== SECTION HEAD ===== */
