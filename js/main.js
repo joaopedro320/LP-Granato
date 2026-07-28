@@ -65,6 +65,18 @@
 })();
 
 // Envio do formulário: post para o Apps Script e redireciona para o WhatsApp
+// Mantem o botao de envio bloqueado ate o formulario estar valido
+(function(){
+  var form = document.getElementById('granato-form');
+  var btn = document.getElementById('granato-submit');
+  function updateSubmitState(){
+    btn.disabled = !form.checkValidity();
+  }
+  form.addEventListener('input', updateSubmitState);
+  form.addEventListener('change', updateSubmitState);
+  updateSubmitState();
+})();
+
 document.getElementById('granato-form').addEventListener('submit', function(e){
   e.preventDefault();
   var form = e.target;
