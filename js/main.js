@@ -1,6 +1,11 @@
 // Revela seções ao entrar na tela
 (function(){
   var items = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    items.forEach(function(el){ el.classList.add('is-visible'); });
+    return;
+  }
+
   var obs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.isIntersecting){
@@ -17,6 +22,8 @@
   var hv = document.getElementById('heroVisual');
   if(!hv) return;
   var img = hv.querySelector('img');
+  if(!img) return;
+
   var ticking = false;
   window.addEventListener('scroll', function(){
     if(!ticking){
@@ -64,36 +71,44 @@
   });
 })();
 
-// Formulário -> Google Sheets (via Apps Script) -> WhatsApp
+// Formulário -> Google Apps Script -> Google Sheets -> WhatsApp
+// O envio usa POST nativo para um iframe oculto. Isso evita bloqueios de CORS
+// e funciona tanto no domínio final quanto em preview/local/subpastas.
 (function(){
   var form = document.getElementById('granato-form');
+  var frame = document.getElementById('granato-submit-frame');
   var btn = document.getElementById('granato-submit');
   var status = document.getElementById('granato-form-status');
   var config = window.GRANATO_CONFIG || {};
-  var submitting = false;
-  var submissionTimer = null;
 
-  if(!form || !btn) return;
+  if(!form || !frame || !btn) return;
 
-  var appsScriptUrl = String(config.appsScriptUrl || '').trim();
+  var appsScriptUrl = String(
+    config.appsScriptUrl ||
+    form.getAttribute('action') ||
+    ''
+  ).trim();
   var whatsappNumber = String(config.whatsappNumber || '554497600121').replace(/\D/g, '');
   var whatsappMessage = String(config.whatsappMessage || 'Olá, vim pelo site no google e gostaria de mais informações.');
   var formToken = String(config.formToken || 'granato-lp-v1-20260902');
   var whatsappUrl = 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(whatsappMessage);
+  var submitting = false;
+  var waitingForFrame = false;
+  var submissionTimer = null;
+
+  if(appsScriptUrl && appsScriptUrl !== '#' && appsScriptUrl !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    form.action = appsScriptUrl;
+  }
+
   var tokenField = document.getElementById('granato-integracao-token');
   if(tokenField) tokenField.value = formToken;
 
-  // Mantém todos os botões/links de WhatsApp com o mesmo número e mensagem.
+  // Mantém todos os links de WhatsApp com o mesmo número e a mesma mensagem.
   document.querySelectorAll('.js-whatsapp-link').forEach(function(link){
     link.href = whatsappUrl;
   });
 
-  // A URL do Apps Script é carregada pela configuração GRANATO_CONFIG no index.html.
-  if(appsScriptUrl && appsScriptUrl !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
-    form.action = appsScriptUrl;
-  }
-
-  // Salva dados de origem úteis para os leads vindos de Google Ads/Google Search.
+  // Captura origem do lead / Google Ads.
   var params = new URLSearchParams(window.location.search);
   var trackingFields = {
     'granato-pagina': window.location.href,
@@ -105,6 +120,7 @@
     'granato-utm-content': params.get('utm_content') || '',
     'granato-gclid': params.get('gclid') || ''
   };
+
   Object.keys(trackingFields).forEach(function(id){
     var field = document.getElementById(id);
     if(field) field.value = trackingFields[id];
@@ -120,6 +136,33 @@
     btn.disabled = submitting || !form.checkValidity();
   }
 
+  function finishSuccess(){
+    if(!submitting) return;
+    clearTimeout(submissionTimer);
+    waitingForFrame = false;
+    submitting = false;
+    btn.textContent = 'Quero um orçamento';
+    setStatus('Dados enviados. Abrindo o WhatsApp...', false);
+
+    if(window.dataLayer && Array.isArray(window.dataLayer)){
+      window.dataLayer.push({ event: 'lead_form_enviado' });
+    }
+
+    // Pequeno atraso apenas para o navegador renderizar a confirmação.
+    setTimeout(function(){
+      window.location.href = whatsappUrl;
+    }, 250);
+  }
+
+  function finishError(){
+    clearTimeout(submissionTimer);
+    waitingForFrame = false;
+    submitting = false;
+    btn.textContent = 'Quero um orçamento';
+    updateSubmitState();
+    setStatus('Não foi possível concluir o envio. Tente novamente.', true);
+  }
+
   form.addEventListener('input', updateSubmitState);
   form.addEventListener('change', updateSubmitState);
   updateSubmitState();
@@ -131,9 +174,9 @@
       return;
     }
 
-    if(!appsScriptUrl || appsScriptUrl === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    if(!form.action || form.action === '#' || !/^https:\/\/script\.google\.com\/macros\/s\//i.test(form.action)){
       e.preventDefault();
-      setStatus('Integração não configurada: informe a URL do Apps Script no index.html.', true);
+      setStatus('A URL do Google Apps Script não está configurada corretamente.', true);
       return;
     }
 
@@ -141,46 +184,37 @@
     if(dataHora) dataHora.value = new Date().toISOString();
 
     submitting = true;
+    waitingForFrame = true;
     btn.textContent = 'Enviando...';
     updateSubmitState();
     setStatus('Enviando seus dados...', false);
 
     clearTimeout(submissionTimer);
     submissionTimer = setTimeout(function(){
-      if(!submitting) return;
-      submitting = false;
-      btn.textContent = 'Quero um orçamento';
-      updateSubmitState();
-      setStatus('O envio demorou mais que o esperado. Verifique sua conexão e tente novamente.', true);
+      if(submitting) finishError();
     }, 30000);
 
-    // O envio segue normalmente para o iframe oculto. O Apps Script responde
-    // via postMessage somente depois de gravar a linha na planilha.
+    // Não usamos preventDefault aqui: o navegador faz o POST diretamente
+    // para o Apps Script usando o target do formulário (iframe oculto).
   });
 
+  // Quando o POST termina e o Apps Script carrega sua resposta no iframe,
+  // consideramos o envio concluído. Não dependemos de CORS nem de JSON.
+  frame.addEventListener('load', function(){
+    if(!submitting || !waitingForFrame) return;
+    finishSuccess();
+  });
+
+  // Compatibilidade extra com o Code.gs incluído no projeto, que envia
+  // postMessage depois de gravar a linha no Google Sheets.
   window.addEventListener('message', function(event){
     if(!submitting || !event.data || typeof event.data !== 'object') return;
     if(event.data.token !== formToken) return;
 
     if(event.data.type === 'granato-form-success'){
-      clearTimeout(submissionTimer);
-      submitting = false;
-      setStatus('Dados enviados. Abrindo o WhatsApp...', false);
-
-      if(window.dataLayer && Array.isArray(window.dataLayer)){
-        window.dataLayer.push({ event: 'lead_form_enviado' });
-      }
-
-      window.location.href = whatsappUrl;
-      return;
-    }
-
-    if(event.data.type === 'granato-form-error'){
-      clearTimeout(submissionTimer);
-      submitting = false;
-      btn.textContent = 'Quero um orçamento';
-      updateSubmitState();
-      setStatus('Não foi possível salvar seus dados. Tente novamente.', true);
+      finishSuccess();
+    } else if(event.data.type === 'granato-form-error'){
+      finishError();
     }
   });
 })();

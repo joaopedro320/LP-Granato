@@ -84,3 +84,12 @@ Depois de publicar o site e implantar o Apps Script:
 2. Preencha e envie o formulário.
 3. Confira se uma linha apareceu na aba **Leads do Site**.
 4. Confirme se o WhatsApp abriu com a mensagem correta.
+
+## Correção de compatibilidade do formulário
+
+Nesta versão:
+- a URL do Apps Script está diretamente no `action` do formulário no `index.html`;
+- os caminhos de CSS, JavaScript e imagens são relativos (`./...`), funcionando em domínio raiz, subpasta e preview local;
+- o POST é feito nativamente para um iframe oculto, evitando dependência de CORS;
+- ao finalizar a requisição, o visitante é direcionado ao WhatsApp com a mensagem configurada;
+- o botão continua sendo um submit nativo como fallback caso algum JavaScript deixe de carregar.
