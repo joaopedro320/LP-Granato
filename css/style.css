@@ -332,3 +332,7 @@ footer{padding:44px 0; border-top:1px solid var(--line); background:var(--bg-sof
   *{scroll-behavior:auto !important; transition:none !important; animation:none !important;}
   .reveal{opacity:1; transform:none;}
 }
+
+
+.form-status{min-height:18px; margin:10px 0 0; font-size:12px; color:var(--ink-dim);}
+.form-status.is-error{color:#ffb4ab;}

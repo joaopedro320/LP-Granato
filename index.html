@@ -80,7 +80,7 @@
     <div class="brand">
       <div class="logo-chip"><img src="/images/logo-white.png" alt="Granato Marmoraria, mármores e granitos em Campo Mourão"></div>
     </div>
-    <a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20do%20site%20da%20Granato%20e%20quero%20um%20or%C3%A7amento" class="nav-cta">
+    <a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20pelo%20site%20no%20google%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." class="nav-cta js-whatsapp-link">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
       Falar no WhatsApp
     </a>
@@ -102,7 +102,7 @@
       <h1>Marmoraria de Alto Padrão perto de você!</h1>
       <p class="lead">9 anos de história, maquinário de última geração e curadoria de pedras exóticas para quem não aceita menos que perfeição em cada bancada, fachada ou ambiente.</p>
       <div class="cta-row">
-        <a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20do%20site%20da%20Granato%20e%20quero%20conhecer%20os%20materiais%20nobres" class="btn-primary">
+        <a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20pelo%20site%20no%20google%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." class="btn-primary js-whatsapp-link">
           <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           Falar com a Granato
         </a>
@@ -332,7 +332,18 @@
       <p>Conte pra gente o seu projeto e receba atendimento direto de quem entende de mármores, granitos e quartzitos nobres.</p>
     </div>
     <div class="form-card reveal reveal-delay-2">
-      <form id="granato-form" action="COLE_AQUI_A_URL_DO_APPS_SCRIPT" method="POST">
+      <form id="granato-form" action="#" method="POST" target="granato-submit-frame" accept-charset="UTF-8">
+        <input type="hidden" name="integracao_token" id="granato-integracao-token" value="">
+        <input type="hidden" name="origem" value="Landing Page Google">
+        <input type="hidden" name="pagina" id="granato-pagina" value="">
+        <input type="hidden" name="referencia" id="granato-referencia" value="">
+        <input type="hidden" name="utm_source" id="granato-utm-source" value="">
+        <input type="hidden" name="utm_medium" id="granato-utm-medium" value="">
+        <input type="hidden" name="utm_campaign" id="granato-utm-campaign" value="">
+        <input type="hidden" name="utm_term" id="granato-utm-term" value="">
+        <input type="hidden" name="utm_content" id="granato-utm-content" value="">
+        <input type="hidden" name="gclid" id="granato-gclid" value="">
+        <input type="hidden" name="data_hora_cliente" id="granato-data-hora" value="">
         <div class="field">
           <label for="nome">Nome completo</label>
           <input type="text" id="nome" name="nome" required>
@@ -389,11 +400,13 @@
           <textarea id="mensagem" name="mensagem" placeholder="Ex: bancada de cozinha em quartzito, apartamento em Maringá"></textarea>
         </div>
         <label class="lgpd">
-          <input type="checkbox" required>
+          <input type="checkbox" name="lgpd_consentimento" value="Sim" required>
           <span>Ao enviar, você concorda com o tratamento dos seus dados conforme a LGPD, apenas para retorno da Granato Marmoraria.</span>
         </label>
         <button type="submit" class="btn-submit" id="granato-submit" disabled>Quero um orçamento</button>
+        <p class="form-status" id="granato-form-status" role="status" aria-live="polite"></p>
       </form>
+      <iframe name="granato-submit-frame" id="granato-submit-frame" title="Envio do formulário" hidden></iframe>
     </div>
   </div>
 </section>
@@ -409,15 +422,23 @@
     <div>
       <div>Segunda a sexta, 8h às 18h, com almoço das 12h às 13h30</div>
       <div style="margin-top:6px;"><a href="https://www.instagram.com/granatomarmoraria_/" target="_blank" rel="noopener">@granatomarmoraria_</a></div>
-      <div style="margin-top:6px;"><a href="https://wa.me/554497600121">(44) 97600-121</a></div>
+      <div style="margin-top:6px;"><a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20pelo%20site%20no%20google%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." class="js-whatsapp-link">(44) 97600-121</a></div>
     </div>
   </div>
 </footer>
 
-<a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20do%20site%20da%20Granato%20e%20quero%20um%20or%C3%A7amento" class="wa-float" aria-label="Falar no WhatsApp">
+<a href="https://wa.me/554497600121?text=Ol%C3%A1%2C%20vim%20pelo%20site%20no%20google%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." class="wa-float js-whatsapp-link" aria-label="Falar no WhatsApp">
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
 </a>
 
+<script>
+window.GRANATO_CONFIG = {
+  appsScriptUrl: 'https://script.google.com/macros/s/AKfycbxhpEqcAkmSxiNGr69jR-0zcJBQk26TRAM5jMtrvenrmJrsLwFIMI8o-0l5KGw0qIiuNg/exec',
+  whatsappNumber: '554497600121',
+  whatsappMessage: 'Olá, vim pelo site no google e gostaria de mais informações.',
+  formToken: 'granato-lp-v1-20260902'
+};
+</script>
 <script src="/js/main.js"></script>
 
 </body>
