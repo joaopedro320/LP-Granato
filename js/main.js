@@ -154,13 +154,13 @@
     }, 250);
   }
 
-  function finishError(){
+  function finishError(message){
     clearTimeout(submissionTimer);
     waitingForFrame = false;
     submitting = false;
     btn.textContent = 'Quero um orçamento';
     updateSubmitState();
-    setStatus('Não foi possível concluir o envio. Tente novamente.', true);
+    setStatus(message || 'Não foi possível concluir o envio. Tente novamente.', true);
   }
 
   form.addEventListener('input', updateSubmitState);
@@ -198,15 +198,9 @@
     // para o Apps Script usando o target do formulário (iframe oculto).
   });
 
-  // Quando o POST termina e o Apps Script carrega sua resposta no iframe,
-  // consideramos o envio concluído. Não dependemos de CORS nem de JSON.
-  frame.addEventListener('load', function(){
-    if(!submitting || !waitingForFrame) return;
-    finishSuccess();
-  });
-
-  // Compatibilidade extra com o Code.gs incluído no projeto, que envia
-  // postMessage depois de gravar a linha no Google Sheets.
+  // Só consideramos sucesso quando o Apps Script confirma via postMessage
+  // que a linha foi realmente gravada no Google Sheets. O evento load do
+  // iframe não é suficiente, pois ele também dispara quando há erro.
   window.addEventListener('message', function(event){
     if(!submitting || !event.data || typeof event.data !== 'object') return;
     if(event.data.token !== formToken) return;
@@ -214,7 +208,7 @@
     if(event.data.type === 'granato-form-success'){
       finishSuccess();
     } else if(event.data.type === 'granato-form-error'){
-      finishError();
+      finishError(event.data.message || 'O Google Sheets não confirmou a gravação.');
     }
   });
 })();
